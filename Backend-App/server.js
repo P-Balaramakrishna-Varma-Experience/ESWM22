@@ -43,6 +43,19 @@ app.get("/", (req, res) => {
 }
 );
 
+// post sample data of schema data
+app.post("/", (req, res) => {
+  const to_push = new data({k_p: 0, k_d:0, k_i:0, desired: 40, run: true})
+  to_push.save()
+  .then((user) => {
+      res.send({message: "Sucess", data: data})
+  })
+  .catch((err) => {
+    res.status(404).send({message: "ERR", err: err})
+  })
+  
+})
+
 
 /*
 @app.get("/")
