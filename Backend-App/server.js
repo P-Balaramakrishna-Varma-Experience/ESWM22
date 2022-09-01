@@ -24,53 +24,29 @@ connection.once("open", () => {
 
 
 app.listen(PORT, () => {
-console.log("Server running on port: " + PORT);
+  console.log("Server running on port: " + PORT);
 });
 
 
 app.get("/", (req, res) => {
   data.find((error, data) => {
-    if(error)
-    {
+    if (error) {
       console.log(error);
-      res.send({message: "Not working"})
+      res.send({ message: "Not working there is a problem or there are no documents" })
     }
-    else
-    {
-      res.send({data: data, message: "works"});
+    else {
+      res.send({ data: data, message: "works" });
     }
   })
 }
 );
 
 // post sample data of schema data
-app.post("/", (req, res) => {
-  const to_push = new data({k_p: 0, k_d:0, k_i:0, desired: 40, run: true})
-  to_push.save()
-  .then((user) => {
-      res.send({message: "Sucess", data: data})
-  })
-  .catch((err) => {
-    res.status(404).send({message: "ERR", err: err})
-  })
-  
+app.post("/", async (req, res) => {
+  const to_push = new data({ k_p: req.body.k_p, k_d: req.body.k_d, k_i: req.body.k_i, desired: req.body.desired, run: req.body.run})
+  let doc = await data.findOneAndUpdate({}, {k_p: req.body.k_p, k_d: req.body.k_d, k_i: req.body.k_i, desired: req.body.desired, run: req.body.run})
+  if(doc)
+    res.send({ message: "works"});
+  else
+    res.send({ message: "error"});
 })
-
-
-/*
-@app.get("/")
-def GetState():
-    collection = mongo.db.data
-    latest = collection.find().sort("_id", pymongo.DESCENDING).limit(1)
-    return jsonify(json_util.dumps(latest))
-
-
-## No checking for parameters
-### secutyr defence programming
-@app.post("/")
-def SetState():
-    record = request.json
-    collection = mongo.db.data
-    collection.insert_one(record)
-    return "POST request sent"
-    */
