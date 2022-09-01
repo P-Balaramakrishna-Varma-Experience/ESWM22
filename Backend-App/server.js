@@ -50,3 +50,15 @@ app.post("/", async (req, res) => {
   else
     res.send({ message: "error"});
 })
+
+//verify manually if error or not
+app.post("/init", async(req, res) => {
+  const to_push = new data({ k_p: req.body.k_p, k_d: req.body.k_d, k_i: req.body.k_i, desired: req.body.desired, run: req.body.run})
+  await to_push.save();
+  res.send({ message: "works"});
+})
+
+app.get("/del", async(req, res) => {
+  await data.remove({});
+  res.send({ message: "works"});
+})
