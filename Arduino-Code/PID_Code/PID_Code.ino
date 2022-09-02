@@ -13,6 +13,7 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <Arduino_JSON.h>
+#include "ThingSpeak.h" // always include thingspeak header file after other header files and custom macros
 
 const char* ssid = "Galaxy M21142D";
 const char* password = "tqqi2636";
@@ -31,11 +32,16 @@ double k_d = 1;
 bool run = false;
 
 
-
 double rpm_sensor_reading, output, desired = 10;
 unsigned long previousTime;
 double lastError;
 double cumError;
+
+
+WiFiClient  client;
+unsigned long myChannelNumber = 1848016;
+const char * myWriteAPIKey = "V7RRRSX51528RIVP";
+
  
 
 
@@ -55,6 +61,7 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   desired = 0;                          //set point at zero degreesd
+  ThingSpeak.begin(client);  // Initialize ThingSpeak
 }
 
 void loop() {
@@ -83,9 +90,12 @@ void loop() {
     lastTime = millis();
   }
 
+  if(run == true)
+    ThingSpeak.writeField(myChannelNumber, 1, 10, myWriteAPIKey);
 
   //rpm_sensor_reading = analogRead(A0);                //read from rotary encoder connected to A0
   //output = computePID(rpm_sensor_reading);
+  //ThingSpeak.writeField(myChannelNumber, 1, output, myWriteAPIKey);
   //delay(100);
   //analogWrite(3, output);  
 }

@@ -80,6 +80,12 @@ function App() {
       <br></br>
       {
         data.run == true && 
+        <iframe width="450" height="260" src="https://thingspeak.com/channels/1848016/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15"></iframe>
+      }
+      <br></br>
+      <br></br>
+      {
+        data.run == true && 
         <iframe width="400" height="300" src="http://192.168.43.168/"></iframe>
       }
     </div>
