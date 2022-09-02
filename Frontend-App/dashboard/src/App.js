@@ -5,7 +5,7 @@ const axios = require('axios');
 
 
 function App() {
-  const [data, setData] = useState({k_p:0, k_d:0, k_i:0, run:false,desired: 0})
+  const [data, setData] = useState({k_p:0, k_d:0, k_i:0, run:false, desired: 0})
   const change_handler = e => {
     const {name, value}  = e.target
     
@@ -78,7 +78,10 @@ function App() {
       </form>
       <br></br>
       <br></br>
-      <iframe width="400" height="300" src="http://192.168.43.168/"></iframe>
+      {
+        data.run == true && 
+        <iframe width="400" height="300" src="http://192.168.43.168/"></iframe>
+      }
     </div>
   );
 }
