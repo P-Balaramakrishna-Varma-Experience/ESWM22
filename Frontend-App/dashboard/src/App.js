@@ -76,6 +76,9 @@ function App() {
         <button type="button" onClick={stop_motor}>Stop</button>
         <br></br>
       </form>
+      <br></br>
+      <br></br>
+      <iframe width="400" height="300" src="http://192.168.43.168/"></iframe>
     </div>
   );
 }
