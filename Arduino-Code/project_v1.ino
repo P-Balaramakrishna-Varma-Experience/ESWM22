@@ -12,9 +12,11 @@ int motor1Pin2 = 26;
 int enable1Pin = 14;
 
 // Setting PWM properties
-const int freq = 30000;
+const int freq = 5000;
 const int pwmChannel = 0;
 const int resolution = 8;
+int motor_speed;
+
 
 void setup()
 {
@@ -26,14 +28,16 @@ void setup()
     pinMode(motor1Pin2, OUTPUT);
     pinMode(enable1Pin, OUTPUT);
 
-    // configure LED PWM functionalitites
+  
+    // attach the channel to the GPIO to be controlled
     ledcSetup(pwmChannel, freq, resolution);
 
-    // attach the channel to the GPIO to be controlled
     ledcAttachPin(enable1Pin, pwmChannel);
 
     Serial.begin(115200);
-
+    digitalWrite(motor1Pin1, HIGH);
+    digitalWrite(motor1Pin2, LOW);
+     ledcWrite(pwmChannel, motor_speed);
     // testing
     Serial.print("Testing DC Motor...");
 }
@@ -46,10 +50,16 @@ void loop()
 
     digitalWrite(motor1Pin1, HIGH);
     digitalWrite(motor1Pin2, LOW);
-    
-    ledcWrite(pwmChannel, motor_speed);
+    // analogWrite(enable1Pin, motor_speed);
+    if(Serial.available())
+    {
+        motor_speed = (Serial.readString()).toInt();
+        ledcWrite(pwmChannel, motor_speed);
+    }
+
     Serial.print("motor speed : ");
     Serial.println(motor_speed);
+    delay(1000);
 }
 
 void print_speed()
