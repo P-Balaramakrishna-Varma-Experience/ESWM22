@@ -1,7 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import { useState } from 'react';
-
+const axios = require('axios');
 
 
 function App() {
@@ -14,15 +14,49 @@ function App() {
           [name]: parseFloat(value)
       })
   }
+
+
   const start_motor = () => {
     setData({
       ...data,
       run: true
     })
+
+    axios({
+      method: 'post',
+      url: 'http://localhost:4000/',
+      data: data
+    })
+    .then((response) => {
+      console.log("axios request sent fine")
+    })
+    .catch((error) => {
+      console.log(error);
+      console.log("not fine")
+    });
+
     console.log(data)
   }
+
+  
   const stop_motor = () => {
-    setData({k_p:0, k_d:0, k_i:0, run:false,desired: 0})
+    setData({k_p:0, k_d:0, k_i:0, run:false, desired: 0})
+
+    axios({
+      method: 'post',
+      url: 'http://localhost:4000/',
+      data: data
+    })
+    .then((response) => {
+      console.log("axios request sent fine")
+    })
+    .catch((error) => {
+      console.log(error);
+      console.log("not fine")
+    });
+
+
+
     console.log(data)
   }
 
@@ -38,8 +72,8 @@ function App() {
         <label><h3>K_i: <input type="number" name="k_i" onChange={change_handler} step="0.01"></input></h3></label>
         <label><h3>K_d: <input type="number" name="k_d" onChange={change_handler} step="0.01"></input></h3></label>
         <label><h3>Desired Value: <input type="Number" name="desired" onChange={change_handler} step="0.01"></input></h3></label>
-        <button onClick={start_motor}>Start</button>
-        <button onClick={stop_motor}>Stop</button>
+        <button type="button" onClick={start_motor}>Start</button>
+        <button type="button" onClick={stop_motor}>Stop</button>
         <br></br>
       </form>
     </div>
