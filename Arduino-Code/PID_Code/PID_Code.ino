@@ -14,6 +14,7 @@
 #include <HTTPClient.h>
 #include <Arduino_JSON.h>
 #include "ThingSpeak.h" // always include thingspeak header file after other header files and custom macros
+#include <Timer.h>
 
 const char* ssid = "Galaxy M21142D";
 const char* password = "tqqi2636";
@@ -42,6 +43,24 @@ WiFiClient  client;
 unsigned long myChannelNumber = 1848016;
 const char * myWriteAPIKey = "V7RRRSX51528RIVP";
 
+
+
+Timer t;
+int i = 0;
+const int number_of_holes = 20;
+const int interruptPin = 13;
+
+// Motor A
+int motor1Pin1 = 27;
+int motor1Pin2 = 26;
+int enable1Pin = 14;
+
+// Setting PWM properties
+const int freq = 5000;
+const int pwmChannel = 0;
+const int resolution = 8;
+int motor_speed_to_set, motor_speed_read;
+
  
 
 
@@ -62,6 +81,22 @@ void setup() {
 
   desired = 0;                          //set point at zero degreesd
   ThingSpeak.begin(client);  // Initialize ThingSpeak
+
+
+  // rpm senor pin, setup.
+  pinMode(interruptPin, INPUT);
+  attachInterrupt(digitalPinToInterrupt(interruptPin), counter, RISING);
+  t.every(500, get_cur_speed);
+
+  //Motor declaring and setting pins.
+  pinMode(motor1Pin1, OUTPUT);
+  pinMode(motor1Pin2, OUTPUT);
+  pinMode(enable1Pin, OUTPUT);
+  ledcSetup(pwmChannel, freq, resolution);
+  ledcAttachPin(enable1Pin, pwmChannel);
+  digitalWrite(motor1Pin1, HIGH);
+  digitalWrite(motor1Pin2, LOW);
+  ledcWrite(pwmChannel, motor_speed_to_set);
 }
 
 void loop() {
@@ -90,14 +125,15 @@ void loop() {
     lastTime = millis();
   }
 
-  if(run == true)
-    ThingSpeak.writeField(myChannelNumber, 1, 10, myWriteAPIKey);
 
-  //rpm_sensor_reading = analogRead(A0);                //read from rotary encoder connected to A0
-  //output = computePID(rpm_sensor_reading);
-  //ThingSpeak.writeField(myChannelNumber, 1, output, myWriteAPIKey);
-  //delay(100);
-  //analogWrite(3, output);  
+  t.update();  
+  motor_speed_read;
+  if(run == true)
+    ThingSpeak.writeField(myChannelNumber, 1, motor_speed_read, myWriteAPIKey);
+
+  motor_speed_to_set = computePID(motor_speed_read);
+  ledcWrite(pwmChannel, motor_speed_to_set);
+  delay(100);
 }
 
 //rpm_sensor_reading the "/" "/del"
@@ -162,4 +198,19 @@ void PrintGlobalState()
   Serial.print(run);
   Serial.print(",");  
   Serial.println(" ");
+}
+
+
+void get_cur_speed()
+{
+    Serial.print("Speed:  ");
+    Serial.print(i * 120 / number_of_holes);
+    Serial.println(" rpm");
+    motor_speed_read = i * 120 / number_of_holes;
+    i = 0;
+}
+
+void counter()
+{
+    i++;
 }
