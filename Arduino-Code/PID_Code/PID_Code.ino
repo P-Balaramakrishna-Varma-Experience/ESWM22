@@ -16,15 +16,15 @@
 #include "ThingSpeak.h" // always include thingspeak header file after other header files and custom macros
 #include <Timer.h>
 
-const char* ssid = "Galaxy M21142D";
-const char* password = "tqqi2636";
+const char* ssid = "Redmi";
+const char* password = "e2cbcdb98369";
 
 //Your Domain name with URL path or IP address with path
-const char* serverName = "http://192.168.125.197:4000";
+const char* serverName = "http://192.168.43.197:4000";
 
 
 unsigned long lastTime = 0;
-unsigned long timerDelay = 5000;
+unsigned long timerDelay = 20000;
 
 
 double k_p = 2;
@@ -52,7 +52,7 @@ const int interruptPin = 13;
 
 // Motor A
 int motor1Pin1 = 27;
-int motor1Pin2 = 26;
+int motor1Pin2 = 25;
 int enable1Pin = 14;
 
 // Setting PWM properties
