@@ -5,7 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const PORT = 4000;
 const data = require("./data.model");
-
+const axios = require('axios');
 
 const app = express();
 app.use(cors());
@@ -71,3 +71,20 @@ app.get("/visual", async(req, res) => {
   res.send({ data: data, message: "works"});
 })
 
+app.get("/visual2", async(req, res) =>{
+  const om2m_response = await axios({
+    method: 'get',
+    url: 'http://127.0.0.1:5089/~/in-cse/in-name/PID_control_of_DC_motor_speed/Node-1/Data?rcn=4',
+    headers: {
+      'X-M2M-Origin': 'admin:admin',
+      'Accept': 'application/json'
+    }
+  })
+
+  let data = []
+  om2m_response.data["m2m:cnt"]["m2m:cin"].forEach((cin) => {
+    data.push(cin["con"])
+  })
+
+  res.status(200).send({data: data})
+})

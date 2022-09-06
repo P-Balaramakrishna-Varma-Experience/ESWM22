@@ -60,7 +60,7 @@ class Visual extends Component{
       setInterval(async () => {
         try 
         {
-          const res = await axios.get('http://localhost:4000/visual');
+          const res = await axios.get('http://localhost:4000/visual2');
           const rpm_values = res.data.data;
           console.log(res.data);
           console.log(rpm_values)
