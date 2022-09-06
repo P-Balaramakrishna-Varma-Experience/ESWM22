@@ -1,7 +1,98 @@
-import logo from './logo.svg';
 import './App.css';
-import { useState } from 'react';
+import { Component, useState } from 'react';
+import { Line } from 'react-chartjs-2';
+import React from 'react';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
 const axios = require('axios');
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+class Visual extends Component{
+  constructor(props) {
+    super()
+    let data = {
+      labels: [1, 2, 3, 4, 5, 6, 7],
+      datasets: [
+        {
+          label: 'Dataset 1',
+          data: [10, 1000, 10000, 100000, 10000, 100000, 1000],
+          borderColor: 'rgb(255, 99, 132)',
+          backgroundColor: 'rgba(255, 99, 132, 0.5)',
+        },
+      ],
+    };
+    let options = {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        title: {
+          display: true,
+          text: 'Chart.js Line Chart',
+        },
+      },
+    };
+    this.state = {options: options, data: data}
+  }
+
+  async componentDidMount() {
+    try 
+    {
+      setInterval(async () => {
+        try 
+        {
+          const res = await axios.get('http://localhost:4000/visual');
+          const rpm_values = res.data.data;
+          console.log(res.data);
+          console.log(rpm_values)
+          
+          this.setState((prevState) => {
+            let newState = JSON.parse(JSON.stringify(prevState));
+            newState.data.labels = rpm_values.map((value, index) => index + 1);
+            newState.data.datasets[0].data = rpm_values;
+            return newState;
+          })
+        } 
+        catch(err) 
+        {
+          console.log(err)
+        }
+      }, 3000);
+    } 
+    catch(e) 
+    {
+     console.log(e);
+    }
+  }
+
+  render() { 
+    return (
+      <div>
+        <Line options={this.state.options} data={this.state.data} />
+      </div>
+    )
+  }
+}
+
 
 
 function App() {
@@ -88,6 +179,7 @@ function App() {
         data.run == true && 
         <iframe width="400" height="300" src="http://192.168.43.168/"></iframe>
       }
+      <Visual></Visual>
     </div>
   );
 }

@@ -62,3 +62,12 @@ app.get("/del", async(req, res) => {
   await data.remove({});
   res.send({ message: "works"});
 })
+
+app.get("/visual", async(req, res) => {
+  let data = [];
+  let len = Math.random() * 40 % 40;
+  for(let i = 0; i < len; i++)
+    data.push(Math.random());
+  res.send({ data: data, message: "works"});
+})
+
