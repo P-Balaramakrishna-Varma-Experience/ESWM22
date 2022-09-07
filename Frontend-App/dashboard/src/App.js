@@ -29,11 +29,11 @@ class Visual extends Component{
   constructor(props) {
     super()
     let data = {
-      labels: [1, 2, 3, 4, 5, 6, 7],
+      labels: [0],
       datasets: [
         {
           label: 'Dataset 1',
-          data: [10, 1000, 10000, 100000, 10000, 100000, 1000],
+          data: [0],
           borderColor: 'rgb(255, 99, 132)',
           backgroundColor: 'rgba(255, 99, 132, 0.5)',
         },
