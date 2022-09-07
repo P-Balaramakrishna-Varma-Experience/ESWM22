@@ -50,6 +50,7 @@ class Visual extends Component{
           text: 'Chart.js Line Chart',
         },
       },
+      maintainAspectRatio: false,
     };
     this.state = {options: options, data: data}
   }
@@ -87,7 +88,7 @@ class Visual extends Component{
   render() { 
     return (
       <div>
-        <Line options={this.state.options} data={this.state.data} />
+        <Line options={this.state.options} data={this.state.data} height="600" />
       </div>
     )
   }
