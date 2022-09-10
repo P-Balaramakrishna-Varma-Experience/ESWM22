@@ -180,7 +180,10 @@ function App() {
         data.run == true && 
         <iframe width="400" height="300" src="http://192.168.43.168/"></iframe>
       }
-      <Visual></Visual>
+      {
+        data.run == true &&
+        <Visual></Visual>
+      }
     </div>
   );
 }

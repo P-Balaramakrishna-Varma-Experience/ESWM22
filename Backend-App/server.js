@@ -88,3 +88,52 @@ app.get("/visual2", async(req, res) =>{
 
   res.status(200).send({data: data})
 })
+
+app.get("/om2m/reset", async(req, res) => {
+  /*
+  try {
+    let del_response = await axios({
+      method: 'delete',
+      url: 'http://127.0.0.1:5089/~/in-cse/in-name/PID_control_of_DC_motor_speed/Node-1/Data/',
+      headers: {
+        'X-M2M-Origin': 'admin:admin',
+        'Accept': 'application/json'
+      }
+    }) 
+  }
+  catch (err)
+  {
+    res.status(404).send({message: "deletion does not work", err: err})
+  }
+  */
+
+  try {
+    let create_response = await axios({
+      method: 'post',
+      url: 'http://127.0.0.1:5089/~/in-cse/in-name/PID_control_of_DC_motor_speed/Node-1/',
+      headers: {
+        'X-M2M-Origin': 'admin:admin',
+        'Accept': 'application/json;ty=3'
+      },
+      data: {
+        "m2m:cnt":{
+          "rn": "Data",
+          "lbl": [
+            "Label-1",
+            "Label-2"
+          ],
+          "mni": 100
+        }
+      }
+    })
+  }
+  catch(err)
+  {
+    res.status(404).send({message: "creating does not work", err: err})
+  }
+
+
+  res.status(200).send({message: "works", data_cre: create_response.data, data_del: del_response.data})
+})
+
+//check mistake debug
