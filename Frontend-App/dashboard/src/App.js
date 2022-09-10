@@ -140,11 +140,23 @@ function App() {
       data: data
     })
     .then((response) => {
-      console.log("axios request sent fine")
+      console.log("axios request to set kp kc sent fine")
     })
     .catch((error) => {
       console.log(error);
-      console.log("not fine")
+      console.log("not fine to set kp kc")
+    });
+
+    axios({
+      method: 'get',
+      url: 'http://localhost:4000/om2m/reset',
+    })
+    .then((response) => {
+      console.log("axios request to reset data cont sent fine")
+    })
+    .catch((error) => {
+      console.log(error);
+      console.log("not fine request to reset data cont")
     });
 
 

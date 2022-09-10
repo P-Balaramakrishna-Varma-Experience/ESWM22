@@ -90,7 +90,6 @@ app.get("/visual2", async(req, res) =>{
 })
 
 app.get("/om2m/reset", async(req, res) => {
-  /*
   try {
     let del_response = await axios({
       method: 'delete',
@@ -105,7 +104,6 @@ app.get("/om2m/reset", async(req, res) => {
   {
     res.status(404).send({message: "deletion does not work", err: err})
   }
-  */
 
   try {
     let create_response = await axios({
@@ -113,7 +111,7 @@ app.get("/om2m/reset", async(req, res) => {
       url: 'http://127.0.0.1:5089/~/in-cse/in-name/PID_control_of_DC_motor_speed/Node-1/',
       headers: {
         'X-M2M-Origin': 'admin:admin',
-        'Accept': 'application/json;ty=3'
+        'Content-Type': 'application/json;ty=3'
       },
       data: {
         "m2m:cnt":{
@@ -133,7 +131,8 @@ app.get("/om2m/reset", async(req, res) => {
   }
 
 
-  res.status(200).send({message: "works", data_cre: create_response.data, data_del: del_response.data})
+ // res.status(200).send({message: "works", data_cre: create_response.data, /*data_del: del_response.data*/})
+ res.status(200).send({message: "works"})
 })
 
 //check mistake debug
