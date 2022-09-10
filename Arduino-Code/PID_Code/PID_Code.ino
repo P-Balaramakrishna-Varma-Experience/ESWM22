@@ -39,30 +39,9 @@ double lastError;
 double cumError;
 
 
-//Things speek variables
 WiFiClient  client;
 unsigned long myChannelNumber = 1848016;
 const char * myWriteAPIKey = "V7RRRSX51528RIVP";
-
-//OneM2M global variables
-#define MAIN_SSID "Galaxy M21142D"
-#define MAIN_PASS "tqqi2636"
-
-#define CSE_IP      "192.168.125.197"
-#define CSE_PORT    5089
-#define HTTPS     false
-#define OM2M_ORGIN    "admin:admin"
-#define OM2M_MN     "/~/in-cse/in-name/"
-#define OM2M_AE     "PID_control_of_DC_motor_speed"
-#define OM2M_DATA_CONT  "Node-1/Data"
-
-const char* ntpServer = "pool.ntp.org";
-unsigned long epochTime; 
-long randNumber;
-
-HTTPClient http_om2m;
-
-
 
 
 
@@ -88,8 +67,6 @@ int motor_speed_to_set, motor_speed_read;
 void setup() {
   //intializing serial monitor
   Serial.begin(115200);
-  configTime(0, 0, ntpServer);
-
 
   //Connecting to wifi
   WiFi.begin(ssid, password);
@@ -152,10 +129,7 @@ void loop() {
   t.update();  
   motor_speed_read;
   if(run == true)
-  {
     ThingSpeak.writeField(myChannelNumber, 1, motor_speed_read, myWriteAPIKey);
-    Push_oneM2M(String(motor_speed_read));
-  }
 
   motor_speed_to_set = computePID(motor_speed_read);
   ledcWrite(pwmChannel, motor_speed_to_set);
@@ -239,51 +213,4 @@ void get_cur_speed()
 void counter()
 {
     i++;
-}
-
-
-unsigned long getTime() 
-{
-  time_t now;
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    //Serial.println("Failed to obtain time");
-    return(0);
-  }
-  time(&now);
-  return now;
-}
-
-
-void Push_oneM2M(String data)
-{
-  static int i=0;
-
-  String server="http://" + String() + CSE_IP + ":" + String() + CSE_PORT + String()+OM2M_MN;
-
-  Serial.println(data);
-  http_om2m.begin(server + String() +OM2M_AE + "/" + OM2M_DATA_CONT + "/");
-
-  http_om2m.addHeader("X-M2M-Origin", OM2M_ORGIN);
-  http_om2m.addHeader("Content-Type", "application/json;ty=4");
-  http_om2m.addHeader("Content-Length", "100");
-
-  String label = "Node-1";
-
-  String req_data = String() + "{\"m2m:cin\": {"
-
-  + "\"con\": \"" + data + "\","
-
-  + "\"rn\": \"" + "cin_"+String(i++) + "\"," 
-
-  + "\"lbl\": \"" + label + "\","
-
-  + "\"cnf\": \"text\""
-
-  + "}}";
-
- //is rn andcnf needed?
-  int code = http_om2m.POST(req_data);
-  http_om2m.end();
-  Serial.println(code);
 }
