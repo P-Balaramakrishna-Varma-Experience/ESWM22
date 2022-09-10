@@ -5,7 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const PORT = 4000;
 const data = require("./data.model");
-const om2m_data = require("./omdat.model");
+//const om2m_data = require("./omdat.model");
 const axios = require('axios');
 
 const app = express();
@@ -84,10 +84,11 @@ app.get("/visual2", async(req, res) =>{
 
   let data = []
   om2m_response.data["m2m:cnt"]["m2m:cin"].forEach((cin) => {
-    data.push(cin["con"])
+    data.push(JSON.parse(cin["con"]))
   })
 
-  res.status(200).send({data: data})
+  let flat_data = data.flat(Infinity)
+  res.status(200).send({data: flat_data})
 })
 
 app.get("/om2m/reset", async(req, res) => {
@@ -134,3 +135,5 @@ app.get("/om2m/reset", async(req, res) => {
   res.status(200).send({message: "works"})
 })
 
+//onem2m we send and receive string data
+//FRONTEND needs integer data to plot but I am sending string data.. and it is working so far
