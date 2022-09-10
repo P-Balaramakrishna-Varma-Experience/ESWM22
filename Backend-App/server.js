@@ -5,7 +5,8 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const PORT = 4000;
 const data = require("./data.model");
-
+//const om2m_data = require("./omdat.model");
+const axios = require('axios');
 
 const app = express();
 app.use(cors());
@@ -62,3 +63,77 @@ app.get("/del", async(req, res) => {
   await data.remove({});
   res.send({ message: "works"});
 })
+
+app.get("/visual", async(req, res) => {
+  let data = [];
+  let len = Math.random() * 40 % 40;
+  for(let i = 0; i < len; i++)
+    data.push(Math.random());
+  res.send({ data: data, message: "works"});
+})
+
+app.get("/visual2", async(req, res) =>{
+  const om2m_response = await axios({
+    method: 'get',
+    url: 'http://127.0.0.1:5089/~/in-cse/in-name/PID_control_of_DC_motor_speed/Node-1/Data?rcn=4',
+    headers: {
+      'X-M2M-Origin': 'admin:admin',
+      'Accept': 'application/json'
+    }
+  })
+
+  let data = []
+  om2m_response.data["m2m:cnt"]["m2m:cin"].forEach((cin) => {
+    data.push(JSON.parse(cin["con"]))
+  })
+
+  let flat_data = data.flat(Infinity)
+  res.status(200).send({data: flat_data})
+})
+
+app.get("/om2m/reset", async(req, res) => {
+  try {
+    let del_response = await axios({
+      method: 'delete',
+      url: 'http://127.0.0.1:5089/~/in-cse/in-name/PID_control_of_DC_motor_speed/Node-1/Data/',
+      headers: {
+        'X-M2M-Origin': 'admin:admin',
+        'Accept': 'application/json'
+      }
+    }) 
+  }
+  catch (err)
+  {
+    res.status(404).send({message: "deletion does not work", err: err})
+  }
+
+  try {
+    let create_response = await axios({
+      method: 'post',
+      url: 'http://127.0.0.1:5089/~/in-cse/in-name/PID_control_of_DC_motor_speed/Node-1/',
+      headers: {
+        'X-M2M-Origin': 'admin:admin',
+        'Content-Type': 'application/json;ty=3'
+      },
+      data: {
+        "m2m:cnt":{
+          "rn": "Data",
+          "lbl": [
+            "Label-1",
+            "Label-2"
+          ],
+          "mni": 100
+        }
+      }
+    })
+  }
+  catch(err)
+  {
+    res.status(404).send({message: "creating does not work", err: err})
+  }
+
+  res.status(200).send({message: "works"})
+})
+
+//onem2m we send and receive string data
+//FRONTEND needs integer data to plot but I am sending string data.. and it is working so far
