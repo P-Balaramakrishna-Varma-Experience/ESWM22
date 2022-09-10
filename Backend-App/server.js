@@ -5,6 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const PORT = 4000;
 const data = require("./data.model");
+const om2m_data = require("./omdat.model");
 const axios = require('axios');
 
 const app = express();
@@ -130,9 +131,6 @@ app.get("/om2m/reset", async(req, res) => {
     res.status(404).send({message: "creating does not work", err: err})
   }
 
-
- // res.status(200).send({message: "works", data_cre: create_response.data, /*data_del: del_response.data*/})
- res.status(200).send({message: "works"})
+  res.status(200).send({message: "works"})
 })
 
-//check mistake debug
