@@ -5,6 +5,16 @@
 #define MAIN_SSID "Galaxy M21142D"
 #define MAIN_PASS "tqqi2636"
 
+/*
+#define CSE_IP      "esw-onem2m.iiit.ac.in"
+#define CSE_PORT    ""
+#define HTTPS     false
+#define OM2M_ORGIN    "2Z@d!E:rpPXgt"
+#define OM2M_MN     "/~/in-cse/in-name/"
+#define OM2M_AE     "Team-33"
+#define OM2M_DATA_CONT  "Node-1/Data"
+*/
+
 #define CSE_IP      "192.168.125.197"
 #define CSE_PORT    5089
 #define HTTPS     false
@@ -64,6 +74,7 @@ void Push_oneM2M(String data)
   static int i=0;
 
   String server="http://" + String() + CSE_IP + ":" + String() + CSE_PORT + String()+OM2M_MN;
+  //String server="https://" + String() + CSE_IP +  String()+OM2M_MN;
 
   //Serial.println(data);
   http_om2m.begin(server + String() +OM2M_AE + "/" + OM2M_DATA_CONT + "/");
@@ -100,6 +111,7 @@ bool push_now()
   {
     last_pushed = millis();
     next_push_after = 10000;
+    //next_push_after = 32000;
     init = true;
   }
 
