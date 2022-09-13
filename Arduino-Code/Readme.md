@@ -1,8 +1,6 @@
 # checks and changes
 - rpm rps rpms (units checkout errors chance)
 
-- things speak to onem2m bluk code.
-  - better plotting helps
 
 - rpm code
   - 1 sec to measure !! (too slow) [try out]

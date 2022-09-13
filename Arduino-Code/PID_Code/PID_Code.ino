@@ -25,11 +25,11 @@ Code components
 #include <Timer.h>
 
 //Wifi credentials to log in
-const char* ssid = "Redmi";
-const char* password = "e2cbcdb98369";
+const char* ssid = "Galaxy M21142D";
+const char* password = "123456789";
 
 //Your Domain name with URL path or IP address for backend
-const char* serverName = "http://192.168.43.197:4000";
+const char* serverName = "http://192.168.68.197:4000";
 
 //Things speak credentials
 WiFiClient  things_speak_client;
@@ -108,11 +108,12 @@ void loop() {
   //Send an HTTP GET request every 5 seconds
   Update_state(); 
   timer.update();  
-  Serial.println("current speed" + String(motor_speed_read));
+  //Serial.println("current speed" + String(motor_speed_read));
   
   if(push_now() == true)
   {
     ToSend = ToSend + "]";
+    //Serial.print(ToSend);
     Push_oneM2M(ToSend);
     ToSend = "[";
   }
@@ -124,10 +125,12 @@ void loop() {
       ToSend = ToSend + ", " + data;
     else
       ToSend = ToSend + data;
+    //Serial.println("data : " + ToSend);
   }
 
-  Serial.println("rpm: " + String(motor_speed_read) + ", dutyCylcles: " + String(rpm_duty(motor_speed_read)));
   motor_speed_to_set = computePID(rpm_duty(motor_speed_read));
+  Serial.println("rpm: " + String(motor_speed_read) + ", dutyCylcles: " + String(rpm_duty(motor_speed_read)));
+
   ledcWrite(pwmChannel, motor_speed_to_set);
   delay(100);
 }
@@ -141,7 +144,7 @@ double computePID(double inp){
   if(previousTime != 0 && lastError != 0)
   {  
     unsigned long int currentTime = millis();                //get current time
-    Serial.println("Time lag: " + String(currentTime - previousTime));
+    //Serial.println("Time lag: " + String(currentTime - previousTime));
 
     double elapsedTime = (double)(currentTime - previousTime) / 60000;        //compute time elapsed from previous computation
    
@@ -152,8 +155,8 @@ double computePID(double inp){
     double out = k_p*error + k_i*cumError + k_d*rateError;                //PID output               
     lastError = error;                                //remember current error
     previousTime = currentTime;                        //remember current time
-    Serial.println("Error: " + String(error) + ", cumError: " + String(cumError) + ", rateError: " + String(rateError));
-    Serial.println("P: " +  String(error * k_p) + ", I: " + String(cumError * k_i) + ", D: " + String(rateError * k_d));
+    //Serial.println("Error: " + String(error) + ", cumError: " + String(cumError) + ", rateError: " + String(rateError));
+    //Serial.println("P: " +  String(error * k_p) + ", I: " + String(cumError * k_i) + ", D: " + String(rateError * k_d));
     return out;                                        //have function return the PID output
   }
   else
@@ -167,7 +170,7 @@ double computePID(double inp){
 
 int rpm_duty(double rpm)
 {
-  return (int)(rpm * 0.38 - 395);
+  return (int)(rpm * 255/900);
 }
 
 void Update_state()
@@ -284,7 +287,7 @@ void counter()
 void Push_oneM2M(String data)
 {
   static int i=0;
-  const String CSE_IP = "192.168.43.197";
+  const String CSE_IP = "192.168.68.197";
   const int CSE_PORT = 5089;
   const bool HTTPS = false;
   const String OM2M_ORGIN = "admin:admin";
@@ -317,6 +320,7 @@ void Push_oneM2M(String data)
   + "}}";
 
  //is rn andcnf needed?
+  //Serial.println(req_data);
   int code = http_om2m.POST(req_data);
   http_om2m.end();
   Serial.println(code);
