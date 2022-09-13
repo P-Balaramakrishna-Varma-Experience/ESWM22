@@ -11,11 +11,11 @@
 
 /*
 Code components
-- thingsspeak (onem2m) [data publishing]
-- Rpm sensor
-- Motor Actuator 
-- PID logic
-- Update of gloabal state remotely
+- thingsspeak (onem2m) [data publishing] (onem2m working integrate)
+- Rpm sensor (recheck and try sudheer code)
+- Motor Actuator (recheck and try sudheer code)
+- PID logic (not working -- logically correct ??)
+- Update of gloabal state remotely (tested by printing the values of global)
 */
 
 #include <WiFi.h>
@@ -35,6 +35,10 @@ const char* serverName = "http://192.168.43.197:4000";
 WiFiClient  things_speak_client;
 unsigned long myChannelNumber = 1848016;
 const char * myWriteAPIKey = "V7RRRSX51528RIVP";
+HTTPClient http_om2m;
+String ToSend = "[";
+
+
 
 
 //Global state
@@ -104,12 +108,26 @@ void loop() {
   //Send an HTTP GET request every 5 seconds
   Update_state(); 
   timer.update();  
-  motor_speed_read;
+  Serial.println("current speed" + String(motor_speed_read));
   
-  if(run == true)
-    ThingSpeak.writeField(myChannelNumber, 1, motor_speed_read, myWriteAPIKey);
+  if(push_now() == true)
+  {
+    ToSend = ToSend + "]";
+    Push_oneM2M(ToSend);
+    ToSend = "[";
+  }
 
-  motor_speed_to_set = computePID(motor_speed_read);
+  if(run == true)
+  {
+    String data = String(motor_speed_read);
+    if(ToSend != "[")
+      ToSend = ToSend + ", " + data;
+    else
+      ToSend = ToSend + data;
+  }
+
+  Serial.println("rpm: " + String(motor_speed_read) + ", dutyCylcles: " + String(rpm_duty(motor_speed_read)));
+  motor_speed_to_set = computePID(rpm_duty(motor_speed_read));
   ledcWrite(pwmChannel, motor_speed_to_set);
   delay(100);
 }
@@ -123,6 +141,8 @@ double computePID(double inp){
   if(previousTime != 0 && lastError != 0)
   {  
     unsigned long int currentTime = millis();                //get current time
+    Serial.println("Time lag: " + String(currentTime - previousTime));
+
     double elapsedTime = (double)(currentTime - previousTime) / 60000;        //compute time elapsed from previous computation
    
     double error = desired - inp;                                // determine error
@@ -132,6 +152,8 @@ double computePID(double inp){
     double out = k_p*error + k_i*cumError + k_d*rateError;                //PID output               
     lastError = error;                                //remember current error
     previousTime = currentTime;                        //remember current time
+    Serial.println("Error: " + String(error) + ", cumError: " + String(cumError) + ", rateError: " + String(rateError));
+    Serial.println("P: " +  String(error * k_p) + ", I: " + String(cumError * k_i) + ", D: " + String(rateError * k_d));
     return out;                                        //have function return the PID output
   }
   else
@@ -143,12 +165,15 @@ double computePID(double inp){
   }
 }
 
-
+int rpm_duty(double rpm)
+{
+  return (int)(rpm * 0.38 - 395);
+}
 
 void Update_state()
 {
   static unsigned long int lastTime = 0;
-  static unsigned long int timerDelay = 5000;
+  static unsigned long int timerDelay = 30000;
 
   if ((millis() - lastTime) > timerDelay)
   {
@@ -249,11 +274,75 @@ void get_cur_speed()
   static int number_of_holes = 20;
   motor_speed_read = (i * (60000/rpm_sampling_time)) / number_of_holes;
   i = 0;
-  
-  Serial.print("Speed:  " + String(motor_speed_read) + " rpm\n");
 }
 
 void counter()
 {
   i++;
+}
+
+void Push_oneM2M(String data)
+{
+  static int i=0;
+  const String CSE_IP = "192.168.43.197";
+  const int CSE_PORT = 5089;
+  const bool HTTPS = false;
+  const String OM2M_ORGIN = "admin:admin";
+  const String OM2M_MN = "/~/in-cse/in-name/";
+  const String OM2M_AE = "PID_control_of_DC_motor_speed";
+  const String OM2M_DATA_CONT =  "Node-1/Data";
+
+  String server="http://" + String() + CSE_IP + ":" + String() + CSE_PORT + String()+OM2M_MN;
+  //String server="https://" + String() + CSE_IP +  String()+OM2M_MN;
+  
+  //Serial.println(data);
+  http_om2m.begin(server + String() +OM2M_AE + "/" + OM2M_DATA_CONT + "/");
+
+  http_om2m.addHeader("X-M2M-Origin", OM2M_ORGIN);
+  http_om2m.addHeader("Content-Type", "application/json;ty=4");
+  http_om2m.addHeader("Content-Length", "100");
+
+  String label = "Node-1";
+
+  String req_data = String() + "{\"m2m:cin\": {"
+
+  + "\"con\": \"" + data + "\","
+
+  + "\"rn\": \"" + "cin_"+String(i++) + "\"," 
+
+  + "\"lbl\": \"" + label + "\","
+
+  + "\"cnf\": \"text\""
+
+  + "}}";
+
+ //is rn andcnf needed?
+  int code = http_om2m.POST(req_data);
+  http_om2m.end();
+  Serial.println(code);
+}
+
+bool push_now()
+{
+  static unsigned long int last_pushed, next_push_after;
+  static bool init = false;
+  if(init == false)
+  {
+    last_pushed = millis();
+    next_push_after = 10000;
+    //next_push_after = 32000;
+    init = true;
+  }
+
+  unsigned long int current_time = millis();
+  if(current_time - last_pushed > next_push_after)
+  {
+    last_pushed = current_time;
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+
 }
