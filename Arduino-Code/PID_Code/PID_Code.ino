@@ -22,7 +22,7 @@ Code components
 #include <HTTPClient.h>
 #include <Arduino_JSON.h>
 #include "ThingSpeak.h"
-#include <Timer.h>
+#include <arduino-timer.h>
 
 //Wifi credentials to log in
 const char* ssid = "Galaxy M21142D";
@@ -53,8 +53,8 @@ unsigned long previousTime = 0;
 //RPM sensor
 const int rpm_sampling_time = 500; //milliseconds
 const int interruptPin = 13;
-Timer timer;
-int i = 0;
+auto timer = timer_create_default();
+int spokes= 0;
 
 
 // Motor 
@@ -107,7 +107,7 @@ void setup() {
 void loop() {
   //Send an HTTP GET request every 5 seconds
   Update_state(); 
-  timer.update();  
+  timer.tick();  
   //Serial.println("current speed" + String(motor_speed_read));
   
   if(push_now() == true)
@@ -128,7 +128,7 @@ void loop() {
     //Serial.println("data : " + ToSend);
   }
 
-  motor_speed_to_set = computePID(rpm_duty(motor_speed_read));
+  motor_speed_to_set = rpm_duty(computePID(motor_speed_read));
   Serial.println("rpm: " + String(motor_speed_read) + ", dutyCylcles: " + String(rpm_duty(motor_speed_read)));
 
   ledcWrite(pwmChannel, motor_speed_to_set);
@@ -170,7 +170,13 @@ double computePID(double inp){
 
 int rpm_duty(double rpm)
 {
-  return (int)(rpm * 255/900);
+  int ans = (rpm * 255/1500);
+  if(ans > 255)
+    return 255;
+  else if(ans < 0)
+    return 0;
+  else
+    return ans;
 }
 
 void Update_state()
@@ -270,18 +276,19 @@ void PrintGlobalState()
 
 
 //The data is stored in motor_speed_read
-void get_cur_speed()
+bool get_cur_speed(void *)
 {
   //motor_speed_read (essence of rpm module)
   //it update motor_speed_read every (rpm_sampling time (frequency))
   static int number_of_holes = 20;
-  motor_speed_read = (i * (60000/rpm_sampling_time)) / number_of_holes;
-  i = 0;
+  motor_speed_read = (spokes* (60000/rpm_sampling_time)) / number_of_holes;
+  spokes= 0;
+  return true;
 }
 
 void counter()
 {
-  i++;
+  spokes++;
 }
 
 void Push_oneM2M(String data)
