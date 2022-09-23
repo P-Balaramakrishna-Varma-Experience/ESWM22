@@ -110,13 +110,6 @@ void loop() {
   timer.tick();  
   //Serial.println("current speed" + String(motor_speed_read));
   
-  if(push_now() == true)
-  {
-    ToSend = ToSend + "]";
-    //Serial.print(ToSend);
-    Push_oneM2M(ToSend);
-    ToSend = "[";
-  }
 
   if(run == true)
   {
@@ -233,6 +226,14 @@ String httpGETRequest(const char* endpoint) {
 
 void setGlobalState(JSONVar state)
 {
+  if(run == true && state["data"][0]["run"] == false)
+  {
+    ToSend = ToSend + "]";
+    Push_oneM2M(ToSend);
+    //Serial.println(ToSend);
+    ToSend = "[";
+  }
+
   k_p =  state["data"][0]["k_p"];
   k_d = state["data"][0]["k_d"];
   k_i = state["data"][0]["k_i"];
