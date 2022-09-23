@@ -170,7 +170,7 @@ double computePID(double inp){
 
 int rpm_duty(double rpm)
 {
-  int ans = (rpm * 255/1500);
+  int ans = (rpm * 255/720);
   if(ans > 255)
     return 255;
   else if(ans < 0)
