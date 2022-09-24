@@ -24,6 +24,12 @@ Code components
 #include "ThingSpeak.h"
 #include <arduino-timer.h>
 
+//#include <Crypto.h>
+//#include <AES.h>
+//#include <SHA256.h>
+
+//#include <string.h>
+
 //Wifi credentials to log in
 const char* ssid = "Galaxy M21142D";
 const char* password = "123456789";
@@ -43,7 +49,7 @@ String ToSend = "[";
 
 //Global state
 //user parameters
-double k_p = 2, k_i = 5, k_d = 1, desired = 10;
+double k_p = 1.25, k_i = 5, k_d = 0.1, desired = 400;
 bool run = false;
 //system keep track of 
 double lastError = 0, cumError = 0;
@@ -122,6 +128,8 @@ void loop() {
   }
 
   motor_speed_to_set = rpm_duty(computePID(motor_speed_read));
+  //motor_speed_to_set = rpm_duty(computePID(motor_speed_read) );
+
   Serial.println("rpm: " + String(motor_speed_read) + ", dutyCylcles: " + String(rpm_duty(motor_speed_read)));
 
   ledcWrite(pwmChannel, motor_speed_to_set);
@@ -164,6 +172,7 @@ double computePID(double inp){
 int rpm_duty(double rpm)
 {
   int ans = (rpm * 255/720);
+  Serial.println(rpm);
   if(ans > 255)
     return 255;
   else if(ans < 0)
@@ -226,7 +235,7 @@ String httpGETRequest(const char* endpoint) {
 
 void setGlobalState(JSONVar state)
 {
-  if(run == true && state["data"][0]["run"] == false)
+  if(run == true && bool(state["data"][0]["run"]) == false)
   {
     ToSend = ToSend + "]";
     Push_oneM2M(ToSend);
@@ -358,3 +367,44 @@ bool push_now()
   }
 
 }
+
+/*
+String Hash_val(String data)
+{
+  int len = data.length();
+  char InBuf[len];
+  data.toCharArray(InBuf, len);
+
+
+  SHA256 sha256;
+  char OutBuf[sha256.hashSize()];
+
+  sha256.reset();
+  sha256.update(InBuf, len);
+  sha256.finalize(OutBuf, sha256.hashSize());
+
+  String Ans = String(OutBuf);
+  return Ans;
+}
+
+String Aes_val(String data)
+{
+  int len =  data.length();
+  char InBuf[len], OutBuf[len];
+  data.toCharArray(InBuf, len); 
+
+  AES256 aes256;
+  aes256.setkey(key, aes256.keySize());
+  aes256.encryptBlock(OutBuf, InBuf);
+
+  String Ans = String(OutBuf);
+  return Ans;
+}
+
+String Secure_it(String Data)
+{
+  String hash_value = Hash_val(Data);
+  String Encrypted = Aes_val(Data + ".." + Hash_value);
+  return Enc;
+}
+*/
