@@ -35,7 +35,7 @@ const char* ssid = "Galaxy M21142D";
 const char* password = "123456789";
 
 //Your Domain name with URL path or IP address for backend
-const char* serverName = "http://192.168.68.197:4000";
+const char* serverName = "http://192.168.61.197:4000";
 
 //Things speak credentials
 WiFiClient  things_speak_client;
