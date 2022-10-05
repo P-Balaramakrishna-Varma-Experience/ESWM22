@@ -14,9 +14,18 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-mongoose.connect("mongodb+srv://bala:rXs53OGOucrVbPUb@cluster0.je6s2u8.mongodb.net/?retryWrites=true&w=majority", {
+mongoose.connect("mongodb://localhost:27017", {
   useNewUrlParser: true,
 });
+
+/*mongoose.connect("mongodb+srv://bala:rXs53OGOucrVbPUb@cluster0.je6s2u8.mongodb.net/?retryWrites=true&w=majority", {
+  useNewUrlParser: true,
+});*/
+
+/*mongoose.connect("mongodb+srv://esp:0rP4zdXDIdevDdis@cluster0.je6s2u8.mongodb.net/?retryWrites=true&w=majority", {
+  useNewUrlParser: true,
+});
+*/
 
 const connection = mongoose.connection; // Make sure that this is not used as a function.
 connection.once("open", () => {
@@ -63,6 +72,46 @@ app.get("/del", async(req, res) => {
   await data.remove({});
   res.send({ message: "works"});
 })
+
+app.get("/latest", async(req, res) => {
+  try {
+    const om2m_response = await axios({
+      method: 'get',
+      url: 'http://127.0.0.1:5089/~/in-cse/in-name/PID_control_of_DC_motor_speed/Node-1/Data/la',
+      headers: {
+        'X-M2M-Origin': 'admin:admin',
+        'Accept': 'application/json'
+      }
+    });
+    let data = JSON.parse(om2m_response.data["m2m:cin"]["con"]);
+    res.status(200).send({ data: data, message: "works" });
+  }
+  catch (error) {
+    console.log(error);
+    res.status(400).send({ message: "Not working there is a problem or there are no documents", error: error });
+  }
+})
+
+app.get("/latestiiith", async(req, res) => {
+  try {
+    const om2m_response = await axios({
+      method: 'get',
+      url: 'https://esw-onem2m.iiit.ac.in/~/in-cse/in-name/Team-33/Node-1/Data/la',
+      headers: {
+        'X-M2M-Origin': '2Z@d!E:rpPXgt',
+        'Accept': 'application/json'
+      }
+    });
+    let data = JSON.parse(om2m_response.data["m2m:cin"]["con"]);
+    res.status(200).send({ data: data, message: "works" });
+  }
+  catch (error) {
+    console.log(error);
+    res.status(400).send({ message: "Not working there is a problem or there are no documents", error: error });
+  }
+})
+
+
 
 app.get("/visual", async(req, res) => {
   let data = [];

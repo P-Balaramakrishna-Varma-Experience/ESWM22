@@ -61,7 +61,7 @@ class Visual extends Component{
       setInterval(async () => {
         try 
         {
-          const res = await axios.get('http://localhost:4000/visual2');
+          const res = await axios.get('http://localhost:4000/latest');
           const rpm_values = res.data.data;
           console.log(res.data);
           console.log(rpm_values)
@@ -147,20 +147,6 @@ function App() {
       console.log("not fine to set kp kc")
     });
 
-    axios({
-      method: 'get',
-      url: 'http://localhost:4000/om2m/reset',
-    })
-    .then((response) => {
-      console.log("axios request to reset data cont sent fine")
-    })
-    .catch((error) => {
-      console.log(error);
-      console.log("not fine request to reset data cont")
-    });
-
-
-
     console.log(data)
   }
 
@@ -180,12 +166,6 @@ function App() {
         <button type="button" onClick={stop_motor}>Stop</button>
         <br></br>
       </form>
-      <br></br>
-      <br></br>
-      {
-        data.run == true && 
-        <iframe width="450" height="260" src="https://thingspeak.com/channels/1848016/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15"></iframe>
-      }
       <br></br>
       <br></br>
       {
